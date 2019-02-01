@@ -2,19 +2,20 @@
 % Please edit documentation in R/utilities.R
 \name{option_name_parser}
 \alias{option_name_parser}
-\title{This decodes an option contract symbol into its useful constituent data}
+\title{Decode an option contract symbol into its constituents}
 \usage{
 option_name_parser(option_string)
 }
 \arguments{
-\item{option_string}{A}
+\item{option_string}{A TD style option symbol}
 }
 \value{
 A 1x7 tibble with the following fields: stock, strike, type,
 expire_month, expire_day. expire_year, and expire_date
 }
 \description{
-This decodes an option contract symbol into its useful constituent data
+The TD API uses a certain format for its options symbology (), and this function
+decomposes the symbol into a tibble with seven fields
 }
 \examples{
 option_name_parser("TSLA_110119C315")

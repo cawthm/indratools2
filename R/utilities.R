@@ -29,9 +29,11 @@ url_encode <- function(string) {
         httpuv::encodeURIComponent(httpuv::decodeURIComponent(string))  }
 }
 
-#' This decodes an option contract symbol into its useful constituent data
+#' Decode an option contract symbol into its constituents
 #'
-#' @param option_string A
+#' @description The TD API uses a certain format for its options symbology (), and this function
+#' decomposes the symbol into a tibble with seven fields
+#' @param option_string A TD style option symbol
 #'
 #' @return A 1x7 tibble with the following fields: stock, strike, type,
 #' expire_month, expire_day. expire_year, and expire_date
@@ -58,5 +60,55 @@ option_name_parser <- function(option_string) {
             tibble(stock, strike, type, expire_month, expire_day, expire_year, expire_date)
         )
     }
+}
+
+#' @title Private helper functions used by master_parser() for
+#' @description The function master_parser() is the handler for a stream of json from the TD API.
+#' Once having been initially parsed by
+#' @param raw_parse A data frame returned by jsonlite::fromJSON()
+#'
+#' @return a data.frame object
+#' @export parser_response parser_notify parser_data
+#' @rdname parser_response
+#' @name parser_response, parser_notify, parser_data
+#' @aliases parser_response, parser_notify, parser_data
+#'
+#' @examples
+#' parser_response()
+parser_response <- function(raw_parse){
+    service <- raw_parse %>% map("service") %>% pluck(1)
+    timestamp <- raw_parse %>% map("timestamp") %>% pluck(1) %>% as.character()
+    content <- raw_parse %>% map("content") %>% pluck(1)
+
+    data.frame(service, timestamp, content)
+}
+
+#' @rdname parser_response
+parser_notify <- function(raw_parse){
+    service <- "heartbest"
+    timestamp <- raw_parse %>% map("heartbeat") %>% pluck(1) %>% as.character()
+    tibble(service, timestamp, .rows = 1)
+}
+
+#' @rdname parser_response
+parser_data <- function(raw_parse) {
+
+
+    helper_fn <- function(service, content_df) {
+        lookup <- switch(service, "OPTION" = option_field_defn, "QUOTE" = stock_field_defn)
+        ## this post https://stackoverflow.com/questions/45535157/difference-between-dplyrrename-and-dplyrrename-all
+        # was helpful for how to use rename_all()
+        content_df %>% set_names( lookup[names(content_df)] )
+    }
+
+    service <- raw_parse %>% map("service") %>% pluck(1)
+    timestamp <- raw_parse %>% map("timestamp") %>% pluck(1) %>% as.character()
+    body <- raw_parse %>% map("content") %>% pluck(1)
+
+
+    body <- map2(service, body, .f = helper_fn)
+
+    tibble(service, timestamp, body) %>% unnest()
+
 }
 
