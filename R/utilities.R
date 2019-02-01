@@ -113,3 +113,68 @@ parser_data <- function(raw_parse) {
 
 }
 
+#' @title Parse one line of received json into a tibble
+#'
+#' @description The TD streamer sends json which \code{master_parser()} 1), converts to a nested
+#' list/df object per jsonlite::fromJSON() and then 2) using one of the associated helper functions
+#' \code{parser_*} to flatten into a nicely rectangular tibble
+#'
+#' @param my_json Some json, as received from the TD streaming API
+#'
+#' @return A tibble
+#' @export
+#'
+#' @examples
+#' some_json <- '{\"notify\":[{\"heartbeat\":\"1541541939136\"}]}'
+#' master_parser(some_json)
+master_parser <- function(my_json) {
+    raw_parse <- jsonlite::fromJSON(my_json)
+    type <- names(raw_parse)
+    #type
+    result <- switch(type,
+                     "data" = parser_data(raw_parse),
+                     "notify" = parser_notify(raw_parse),
+                     "response" = parser_response(raw_parse))
+    result
+}
+
+#' Send requests to TD streamer
+#'
+#' @param parameter_keys Vector of symbols requested
+#' @param requestid Default is "2"
+#' @param service Defaults to "QUOTE"; Common values are "ADMIN", "QUOTE", "NEWS_HEADLINE", though a
+#' complete listing can be found in section 4.4 of the
+#' \href{https://developer.tdameritrade.com/content/streaming-data#_Toc504640602}{TD Ameritrade streaming API} docs.
+#' @param command Default is "SUBS"
+#' @param parameter_fields A numeric vector of requested fields, default is 0:11
+#' @param pretty Defaults to FALSE. Used for inspecting the output/ debugging.
+#'
+#' @return Output will be a string of json that is expected by the streamer
+#' @export
+#'
+#' @examples
+#' requestor(c("TSLA", "MSFT"))
+#'
+#' requestor("TSLA_122118P400", service = "OPTION")
+requestor <- function(parameter_keys,
+                      requestid = "2",
+                      service = "QUOTE",
+                      command = "SUBS",
+                      parameter_fields = c(0:11) ,
+                      pretty = FALSE) {
+
+    request_object <- list(requests =
+                               tibble(service = service,
+                                      requestid = requestid,
+                                      command = command,
+                                      account = user_prins[["accounts"]][[1]][["accountId"]],
+                                      source = user_prins[["streamerInfo"]][["appId"]])
+    )
+
+
+    request_object$requests$parameters <- tibble(keys = paste(parameter_keys, collapse = ","),
+                                                 fields = paste(parameter_fields, collapse = ","))
+
+    jsonlite::toJSON(request_object, pretty = pretty)
+}
+
