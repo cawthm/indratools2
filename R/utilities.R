@@ -62,19 +62,20 @@ option_name_parser <- function(option_string) {
     }
 }
 
-#' @title Private helper functions used by master_parser() for
-#' @description The function master_parser() is the handler for a stream of json from the TD API.
-#' Once having been initially parsed by
-#' @param raw_parse A data frame returned by jsonlite::fromJSON()
+
+#' Helper functions used within master_parser()
 #'
-#' @return a data.frame object
-#' @export parser_response parser_notify parser_data
-#' @rdname parser_response
-#' @name parser_response, parser_notify, parser_data
-#' @aliases parser_response, parser_notify, parser_data
+#' @description The function \code{master_parser()} is the handler for a stream of json from the TD API.
+#' Once having been initially parsed by an internal call to \code{jsonlite::fromJSON()}, master_parser
+#' uses a call to \code{switch()} to one of these functions.
+#'
+#' @param raw_parse The heavily nested list/df object returned from \code{jsonlite::fromJSON()}
+#'
+#' @return A tibble
+#' @export
 #'
 #' @examples
-#' parser_response()
+#' parser_response(jsonlite::fromJSON(some_json))
 parser_response <- function(raw_parse){
     service <- raw_parse %>% map("service") %>% pluck(1)
     timestamp <- raw_parse %>% map("timestamp") %>% pluck(1) %>% as.character()
