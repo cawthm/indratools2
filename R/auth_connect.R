@@ -17,15 +17,16 @@
 td_post_access_token <- function(grant_type, refresh_token, access_type,
                                  code, client_id, redirect_uri) {
 
+    resource_root <- "https://api.tdameritrade.com/v1/"
     url <- paste0(resource_root, "oauth2/token")
 
 
     data_payload <- paste0("grant_type=", grant_type,
-                           "&refresh_token=", my_url_encode(refresh_token),
+                           "&refresh_token=", url_encode(refresh_token),
                            "&access_type=", access_type,
-                           "&code=", my_url_encode(code),
-                           "&client_id=", my_url_encode(client_id),
-                           "&redirect_uri=", my_url_encode(redirect_uri))
+                           "&code=", url_encode(code),
+                           "&client_id=", url_encode(client_id),
+                           "&redirect_uri=", url_encode(redirect_uri))
 
 
     r <- httr::POST(url = url, body = data_payload, httr::content_type('application/x-www-form-urlencoded'))
@@ -46,6 +47,7 @@ td_post_access_token <- function(grant_type, refresh_token, access_type,
 #'
 td_get_user_principals <- function(access_token,
                                    fields = "streamerSubscriptionKeys,streamerConnectionInfo") {
+    resource_root <- "https://api.tdameritrade.com/v1/"
     url <- paste0(resource_root, "userprincipals","?fields=", url_encode(fields))
     # url
     r <- httr::GET(url = url, httr::add_headers(Authorization = paste0("Bearer ", access_token)))
@@ -70,3 +72,119 @@ create_websocket <- function(socket_url, autoConnect = FALSE) {
     websocket::WebSocket$new(paste0("wss://", socket_url, "/ws"), autoConnect = autoConnect)
 }
 
+
+#' Update a token set
+#'
+#' @param path_to_file Local file path to token set.
+#'
+#' @return A new set of tokens.
+#' @export
+#'
+#' @description This function does two things simultaneously: 1) returns an updated set of tokens
+#' and 2), as a side effect, saves/ replaces the old token set via \code{saveRDS()} at the same location
+#' indicated by \code{path_to_file}
+#'
+update_refresh_tokens <- function(path_to_file = "") {
+    old_token <- readRDS(path_to_file) # (old but still valid, that is)
+
+    new_token <- td_post_access_token(grant_type = "refresh_token",
+                                      refresh_token = old_token$refresh_token,
+                                      access_type = "offline",
+                                      code = NULL,
+                                      client_id = "moonriver@AMER.OAUTHAP",
+                                      redirect_uri = NULL)
+
+    saveRDS(new_token, path_to_file)
+
+    new_token
+}
+
+#' Create json string for inital websocket handshake
+#'
+#' @param user_prins The list of login credentials returned by a successful call to \code{td_get_user_principals()}.
+#' @param pretty
+#'
+#' @return json
+#' @export
+#'
+#' @examples
+#' ws$send(credentials_request_string(user_prins))
+credentials_request_string <- function(user_prins, pretty = FALSE) {
+    tokenTimeStampSeconds <-
+        user_prins[["streamerInfo"]][["tokenTimestamp"]] %>%
+        lubridate::as_datetime(.) %>% as.numeric()
+
+    tokenTimeStampAsMs <-
+        (tokenTimeStampSeconds * 1000) %>% toString()
+
+    credentials <-
+        tibble(
+            userid = user_prins[["accounts"]][[1]][["accountId"]],
+            token = user_prins[["streamerInfo"]][["token"]],
+            company = user_prins[["accounts"]][[1]][["company"]],
+            segment = user_prins[["accounts"]][[1]][["segment"]],
+            cddomain = user_prins[["accounts"]][[1]][["accountCdDomainId"]],
+            usergroup = user_prins[["streamerInfo"]][["userGroup"]],
+            accesslevel = user_prins[["streamerInfo"]][["accessLevel"]],
+            authorized = "Y",
+            timestamp = tokenTimeStampAsMs,
+            appid = user_prins[["streamerInfo"]][["appId"]],
+            acl = user_prins[["streamerInfo"]][["acl"]]
+        )
+
+    ## the first login to ws needs a request object
+    # constructing the request object from the login stuff above
+
+    credentials_to_string <-
+        paste(names(credentials),
+              credentials,
+              sep = "=",
+              collapse = "&") %>%
+        httpuv::encodeURIComponent()
+
+    request_build <- list(requests = tibble(service =  "ADMIN",
+                                            command =  "LOGIN",
+                                            requestid = 0,
+                                            account = user_prins[["accounts"]][[1]][["accountId"]],
+                                            source = user_prins[["streamerInfo"]][["appId"]]))
+
+    request_build$requests$parameters <- tibble(
+        credential = credentials_to_string,
+        token = user_prins[["streamerInfo"]][["token"]],
+        version = "1.0",
+        quoslevel = 0)
+
+    jsonlite::toJSON(request_build, pretty = pretty)
+}
+
+#' Wrapper to manage \code{ws$connect()} in a script
+#'
+#' @param ws A websocket connection
+#' @param timeout
+#'
+#' @return No return value, but ensures that the ws$readyState() == T before proceeding with script
+#' @export
+#'
+poll_until_connected <- function(ws, timeout = 5) {
+    connected <- FALSE
+    end <- Sys.time() + timeout
+    while (!connected && Sys.time() < end) {
+        # Need to run the event loop for websocket to complete connection.
+        later::run_now(0.1)
+
+        ready_state <- ws$readyState()
+        if (ready_state == 0L) {
+            # 0 means we're still trying to connect.
+            # For debugging, indicate how many times we've done this.
+            cat(".")
+        } else if (ready_state == 1L) {
+            connected <- TRUE
+        } else {
+            break
+        }
+    }
+
+    if (!connected) {
+        stop("Unable to establish websocket connection.")
+    }
+}

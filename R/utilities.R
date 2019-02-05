@@ -86,7 +86,7 @@ parser_response <- function(raw_parse){
 
 #' @rdname parser_response
 parser_notify <- function(raw_parse){
-    service <- "heartbest"
+    service <- "heartbeat"
     timestamp <- raw_parse %>% map("heartbeat") %>% pluck(1) %>% as.character()
     tibble(service, timestamp, .rows = 1)
 }
@@ -148,20 +148,22 @@ master_parser <- function(my_json) {
 #' @param command Default is "SUBS"
 #' @param parameter_fields A numeric vector of requested fields, default is 0:11
 #' @param pretty Defaults to FALSE. Used for inspecting the output/ debugging.
+#' @param user_prins some user_principals; a list
 #'
 #' @return Output will be a string of json that is expected by the streamer
 #' @export
 #'
 #' @examples
 #' requestor(c("TSLA", "MSFT"))
-#'
+#
 #' requestor("TSLA_122118P400", service = "OPTION")
 requestor <- function(parameter_keys,
                       requestid = "2",
                       service = "QUOTE",
                       command = "SUBS",
                       parameter_fields = c(0:11) ,
-                      pretty = FALSE) {
+                      pretty = FALSE,
+                      å) {
 
     request_object <- list(requests =
                                tibble(service = service,

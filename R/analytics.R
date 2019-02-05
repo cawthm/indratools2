@@ -73,7 +73,7 @@ td_get_option_chain <- function(  symbol = "TSLA",
 
 
 
-    fields <- paste0("?apikey=", my_url_encode(apikey), "&symbol=", symbol,
+    fields <- paste0("?apikey=", url_encode(apikey), "&symbol=", symbol,
                      "&contractType=", contractType, "&strikeCount=", strikeCount,
                      "&includeQuotes=", includeQuotes, "&strategy=", strategy, "&interval=", interval,
                      "&strike=", strike, "&range=", range, "&fromDate=", fromDate,
@@ -81,7 +81,7 @@ td_get_option_chain <- function(  symbol = "TSLA",
                      "&underlyingPrice=", underlyingPrice, "&interestRate=", interestRate,
                      "&daysToExpiration=", daysToExpiration, "&expMonth=", expMonth, "&optionType=", optionType)
 
-
+    resource_root <- "https://api.tdameritrade.com/v1/"
     url <- paste0(resource_root, 'marketdata/chains',fields)
     #url
     r <- httr::GET(url = url, httr::add_headers(
@@ -94,7 +94,7 @@ td_get_option_chain <- function(  symbol = "TSLA",
 
     httr::content(r, as = "text") %>% jsonlite::fromJSON()
     the_calls <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
-        pluck("callExpDateMap") %>% purrr:map(.f = helper_f) %>% unlist() %>% unname()
+        pluck("callExpDateMap") %>% purrr::map(.f = helper_f) %>% unlist() %>% unname()
 
     the_puts <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
         purrr::pluck("putExpDateMap") %>% map(.f = helper_f) %>% unlist() %>% unname()

@@ -5,7 +5,7 @@
 \title{Send requests to TD streamer}
 \usage{
 requestor(parameter_keys, requestid = "2", service = "QUOTE",
-  command = "SUBS", parameter_fields = c(0:11), pretty = FALSE)
+  command = "SUBS", parameter_fields = c(0:11), pretty = FALSE, å)
 }
 \arguments{
 \item{parameter_keys}{Vector of symbols requested}
@@ -21,6 +21,8 @@ complete listing can be found in section 4.4 of the
 \item{parameter_fields}{A numeric vector of requested fields, default is 0:11}
 
 \item{pretty}{Defaults to FALSE. Used for inspecting the output/ debugging.}
+
+\item{user_prins}{some user_principals; a list}
 }
 \value{
 Output will be a string of json that is expected by the streamer
@@ -30,6 +32,5 @@ Send requests to TD streamer
 }
 \examples{
 requestor(c("TSLA", "MSFT"))
-
 requestor("TSLA_122118P400", service = "OPTION")
 }
