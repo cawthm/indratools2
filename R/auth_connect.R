@@ -188,3 +188,19 @@ poll_until_connected <- function(ws, timeout = 5) {
         stop("Unable to establish websocket connection.")
     }
 }
+
+poll_until_disconnected <- function(ws, timeout = 5) {
+    disconnected <- FALSE
+    end <- Sys.time() + timeout
+    while (disconnected == 0L && Sys.time < end) {
+        later::run_now(0.1)
+        state <- func(...)[[1]]
+    }
+    if (done_state == 0L) {
+        cat(".")
+    } else if (done_state == 1L) {
+        done_state <- TRUE
+    } else {
+        break
+    }
+}

@@ -3,6 +3,7 @@
 export(create_websocket)
 export(credentials_request_string)
 export(master_parser)
+export(ms_to_datetime)
 export(option_name_parser)
 export(parser_response)
 export(poll_until_connected)

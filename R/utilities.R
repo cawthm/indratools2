@@ -33,33 +33,23 @@ url_encode <- function(string) {
 #'
 #' @description The TD API uses a certain format for its options symbology (), and this function
 #' decomposes the symbol into a tibble with seven fields
-#' @param option_string A TD style option symbol
 #'
-#' @return A 1x7 tibble with the following fields: stock, strike, type,
-#' expire_month, expire_day. expire_year, and expire_date
+#' @param df A dataframe
+#' @param key The column dame of the df with the option symbols
+#'
+#' @return Modifies in a place a tibble
 #' @export
 #'
 #' @examples
-#' option_name_parser("TSLA_110119C315")
-option_name_parser <- function(option_string) {
-    if (stringr::str_detect(option_string, "_") == F | is.na(option_string == T)) {
-        return(
-            tibble::tibble(stock = NA, strike = NA, type = NA, expire_month = NA, expire_day = NA, expire_year = NA))
-    } else {
-        type <- stringr::str_extract(option_string, "[$C$P]{1}")
-        x <- stringr::str_split(option_string, type)[[1]]
-        xx <- stringr::str_split(x[[1]], "\\_")[[1]]
-        stock <- xx[[1]]
-        strike <- as.numeric(x[[2]])
-        expire_month <- stringr::str_sub(xx[[2]], start = 1, end = 2) %>% as.integer()
-        expire_day <- stringr::str_sub(xx[[2]], start = 3, end = 4) %>% as.integer()
-        expire_year <- stringr::str_sub(xx[[2]], start = 5, end = 6) %>% as.numeric() + 2000
-        expire_date <- lubridate::ymd(paste(expire_year, expire_month, expire_day, sep = "-"))
+#' option_name_parser(data.frame(key = "TSLA_110119C315"), "key")
+option_name_parser <- function(df, key) {
 
-        return (
-            tibble(stock, strike, type, expire_month, expire_day, expire_year, expire_date)
-        )
-    }
+    df2 <- tidyr::separate(df, key, into = c("stock", "ROS"), sep = "_", remove = F)
+
+    df3 <- tidyr::separate(df2, ROS, into = c("expiry_date", "type", "strike"), sep = c(6, 7), convert = T)
+
+    dplyr::mutate(df3, expiry_date = lubridate::mdy(expiry_date))
+
 }
 
 
@@ -163,7 +153,7 @@ requestor <- function(parameter_keys,
                       command = "SUBS",
                       parameter_fields = c(0:11) ,
                       pretty = FALSE,
-                      å) {
+                      user_prins) {
 
     request_object <- list(requests =
                                tibble(service = service,
@@ -178,5 +168,22 @@ requestor <- function(parameter_keys,
                                                  fields = paste(parameter_fields, collapse = ","))
 
     jsonlite::toJSON(request_object, pretty = pretty)
+}
+
+#' Title
+#'
+#' @param milliseconds_since_epoch
+#' @param tz
+#'
+#' @return a Date object
+#' @export
+#'
+#' @examples
+ms_to_datetime <- function(milliseconds_since_epoch, tz = "America/Chicago") {
+    tt <-  as.numeric(milliseconds_since_epoch)/ 1000
+
+    #t <- strftime(tt,'%Y-%m-%d %H:%M:%OS3', tz = tz)
+
+    as.POSIXct(tt, origin = "1970-01-01", tz = tz)
 }
 

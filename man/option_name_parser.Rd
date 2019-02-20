@@ -4,19 +4,20 @@
 \alias{option_name_parser}
 \title{Decode an option contract symbol into its constituents}
 \usage{
-option_name_parser(option_string)
+option_name_parser(df, key)
 }
 \arguments{
-\item{option_string}{A TD style option symbol}
+\item{df}{A dataframe}
+
+\item{key}{The column dame of the df with the option symbols}
 }
 \value{
-A 1x7 tibble with the following fields: stock, strike, type,
-expire_month, expire_day. expire_year, and expire_date
+Modifies in a place a tibble
 }
 \description{
 The TD API uses a certain format for its options symbology (), and this function
 decomposes the symbol into a tibble with seven fields
 }
 \examples{
-option_name_parser("TSLA_110119C315")
+option_name_parser(data.frame(key = "TSLA_110119C315"), "key")
 }
