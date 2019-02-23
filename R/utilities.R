@@ -65,14 +65,20 @@ option_name_parser <- function(df, key) {
 #' @export
 #'
 #' @examples
-#' parser_response(jsonlite::fromJSON(some_json))
+#' parser_response(jsonlite::fromJSON('{\"response\":[{\"service\":\"ADMIN\",\"requestid\":\"0\",\"command\":\"LOGIN\",\"timestamp\":1541541928754,\"content\":{\"code\":0,\"msg\":\"07-2\"}}]}'))
+#' this is found at login after sending user principals
 parser_response <- function(raw_parse){
     service <- raw_parse %>% map("service") %>% pluck(1)
     timestamp <- raw_parse %>% map("timestamp") %>% pluck(1) %>% as.character()
     content <- raw_parse %>% map("content") %>% pluck(1)
 
-    data.frame(service, timestamp, content)
+    data.frame(service, timestamp, content, stringsAsFactors = F)
 }
+
+
+
+# III. a list of length 1 named 'data':
+# eg: "{\"data\":[{\"service\":\"OPTION\", \"timestamp\":1541604208281,\"command\":\"SUBS\",\"content\":[{\"key\":\"TSLA_111618P365\",\"11\":37407},{\"key\":\"TSLA_113018C332.5\",\"11\":37407},{\"key\":\"TSLA_113018P327.5\",\"10\":52.71542,\"11\":37407},{\"key\":\"TSLA_111618P320\",\"3\":3.2,\"10\":61.75262,\"11\":37408},{\"key\":\"TSLA_112318C337.5\",\"10\":47.973118,\"11\":37407},{\"key\":\"TSLA_110918P342.5\",\"11\":37407},{\"key\":\"TSLA_111618P315\",\"11\":37407},{\"key\":\"TSLA_110918P335\",\"2\":1.78,\"3\":1.84,\"10\":54.21732,\"11\":37408},{\"key\":\"TSLA_112318P352.5\",\"11\":37407},{\"key\":\"TSLA_111618C380\",\"2\":1.81,\"11\":37407},{\"key\":\"TSLA_111618C355\",\"10\":49.72311,\"11\":37408},{\"key\":\"TSLA_111618C350\",\"2\":10.8,\"11\":37407},{\"key\":\"TSLA_112318C327.5\",\"10\":50.44973,\"11\":37407},{\"key\":\"TSLA_111618C340\",\"11\":37408},{\"key\":\"TSLA_113018C390\",\"11\":37407},{\"key\":\"TSLA_110918C355\",\"10\":48.113895,\"11\":37407},{\"key\":\"TSLA_111618C315\",\"2\":35.9,\"11\":37408},{\"key\":\"TSLA_112318P390\",\"2\":40.65,\"3\":44.05,\"10\":43.714043,\"11\":37407},{\"key\":\"TSLA_111618C305\",\"2\":45.05,\"11\":37408},{\"key\":\"TSLA_113018C330\",\"11\":37407},{\"key\":\"TSLA_110918P317.5\",\"3\":0.38,\"10\":63.093018,\"11\":37407}]},{\"service\":\"QUOTE\", \"timestamp\":1541604208281,\"command\":\"SUBS\",\"content\":[{\"key\":\"TSLA\",\"4\":2,\"7\":\"V\",\"11\":37408}]}]}"
 
 #' @rdname parser_response
 parser_notify <- function(raw_parse){
