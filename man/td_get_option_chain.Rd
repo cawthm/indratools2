@@ -10,7 +10,7 @@ td_get_option_chain(symbol = "TSLA", apikey = "moonriver@AMER.OAUTHAP",
   range = "NTM", fromDate = Sys.Date(), monthsToGet = 12,
   volatility = NULL, underlyingPrice = NULL, interestRate = NULL,
   daysToExpiration = NULL, expMonth = "ALL", optionType = "ALL",
-  access_token)
+  access_token = .token_set$access_token)
 }
 \arguments{
 \item{symbol}{Symbol of the underlying, eg "TSLA"}

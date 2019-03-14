@@ -193,3 +193,11 @@ ms_to_datetime <- function(milliseconds_since_epoch, tz = "America/Chicago") {
     as.POSIXct(tt, origin = "1970-01-01", tz = tz)
 }
 
+datetime_to_ms <- function(dttm, tz = "America/Chicago") {
+    # tt <-  as.numeric(milliseconds_since_epoch)/ 1000
+    #
+    # #t <- strftime(tt,'%Y-%m-%d %H:%M:%OS3', tz = tz)
+    #
+    # as.POSIXct(tt, origin = "1970-01-01", tz = tz)
+}
+

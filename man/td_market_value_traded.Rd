@@ -4,7 +4,8 @@
 \alias{td_market_value_traded}
 \title{Return a df of volume, mkt cap and mkt value traded}
 \usage{
-td_market_value_traded(symbol)
+td_market_value_traded(symbol, refresh_tokens = .token_set1,
+  sleep = 0.1)
 }
 \arguments{
 \item{symbol}{}

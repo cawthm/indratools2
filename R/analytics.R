@@ -7,25 +7,40 @@
 #'
 #' @examples
 #' td_market_value_traded("MSFT")
-td_market_value_traded <- function(symbol) {
+#' @importFrom magrittr "%>%"
+td_market_value_traded <- function(symbol, refresh_tokens = .token_set1, sleep = .1) {
 
     url1 <- paste0("https://api.tdameritrade.com/v1/marketdata/", symbol,"/pricehistory") # for price history
     url2 <- "https://api.tdameritrade.com/v1/instruments" # for mkt cap
 
     url1_w_params <- paste0(url1,"?apikey=",httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
-                            "&periodType=", "day",
-                            "&period=", 10, #
+                            "&periodType=", "month",
+                            "&period=", 1, # will give one month
                             "&frequencyType=","daily",
                             "&frequency=",1)
 
-
-    r_url1 <- httr::GET(url = url1_w_params, httr::add_headers(Authorization = paste0("Bearer ", refresh_tokens$access_token)))
+    #url1_w_params
+    r_url1 <- httr::RETRY("GET", url = url1_w_params)#, httr::add_headers(Authorization = paste0("Bearer ", refresh_tokens$access_token)))
     #r_url1
-    httr::content(r_url1)
+    returned_json <- httr::content(r_url1, as = "text")
 
-    # url2_w_params <- paste0(url2, "?symbol=", symbol, "&projection=", "fundamental")
-    # r_url2 <- httr::GET(url = url2_w_params, httr::add_headers(Authorization = paste0("Bearer ", refresh_tokens$access_token)))
-    # httr::content(r_url2)#$symbol$fundamental
+    tidy_df <- jsonlite::fromJSON(returned_json)[[1]] %>% dplyr::mutate(stock = symbol, pretty_date = ms_to_datetime(datetime))
+    #tidy_df
+
+    url2_w_params <- paste0(url2,"?apikey=",httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
+                                  "&symbol=", symbol,
+                                  "&projection=", "fundamental")
+    Sys.sleep(sleep)
+    r_url2 <- httr::RETRY("GET", url = url2_w_params) %>% httr::content() %>% purrr::flatten()
+    #r_url2
+    # flatten takes the symbol name out of the returned list, which is ugly from content()
+
+    tidy_df <- tidy_df %>% dplyr::mutate(shares_out_mm = r_url2$fundamental$marketCapFloat,
+                                  market_cap_bn = shares_out_mm * close/1000,
+                                  value_traded_bn = volume * close /1000000000,
+                                  val_div_mkt_cap = value_traded_bn/ market_cap_bn)
+    Sys.sleep(sleep)
+    tidy_df
 }
 
 #' Get a term structure of extant option contract symbols
@@ -69,7 +84,7 @@ td_get_option_chain <- function(  symbol = "TSLA",
                                   daysToExpiration = NULL,
                                   expMonth = "ALL",
                                   optionType = "ALL",
-                                  access_token) {
+                                  access_token = .token_set$access_token) {
 
 
 
@@ -86,19 +101,21 @@ td_get_option_chain <- function(  symbol = "TSLA",
     #url
     r <- httr::GET(url = url, httr::add_headers(
         .headers = c("Authorization" = paste0("Bearer ", access_token),
-                     "Content-Type" = "application/json")
-    )
-    )
-    #return(r)
-    helper_f <- function(strike) { map_chr(strike, pluck, "symbol")}
+                     "Content-Type" = "application/json"))
+        )
 
-    httr::content(r, as = "text") %>% jsonlite::fromJSON()
-    the_calls <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
-        pluck("callExpDateMap") %>% purrr::map(.f = helper_f) %>% unlist() %>% unname()
+    #r
 
-    the_puts <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
-        purrr::pluck("putExpDateMap") %>% map(.f = helper_f) %>% unlist() %>% unname()
-
-    c(the_calls, the_puts)
+     the_calls <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
+         purrr::pluck("callExpDateMap") %>%
+         purrr::map(pluck) %>%
+         map_df(dplyr::bind_rows)
+    #
+     the_puts <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
+         purrr::pluck("putExpDateMap") %>%
+         purrr::map(pluck) %>%
+         map_df(dplyr::bind_rows)
+    #
+     dplyr::bind_rows(the_calls, the_puts)
 
 }
