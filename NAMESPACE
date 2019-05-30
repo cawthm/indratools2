@@ -2,6 +2,7 @@
 
 export(create_websocket)
 export(credentials_request_string)
+export(datetime_to_ms)
 export(master_parser)
 export(ms_to_datetime)
 export(option_name_parser)

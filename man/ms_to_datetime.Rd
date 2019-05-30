@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{ms_to_datetime}
 \alias{ms_to_datetime}
-\title{Title}
+\title{Convert milliseconds since unix epoch to a datetime object}
 \usage{
 ms_to_datetime(milliseconds_since_epoch, tz = "America/Chicago")
 }
@@ -13,5 +13,9 @@ ms_to_datetime(milliseconds_since_epoch, tz = "America/Chicago")
 a Date object
 }
 \description{
-Title
+Convert milliseconds since unix epoch to a datetime object
+}
+\examples{
+ms <- 1559235837234
+ms_to_datetime(ms)
 }

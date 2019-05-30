@@ -116,6 +116,6 @@ td_get_option_chain <- function(  symbol = "TSLA",
          purrr::map(pluck) %>%
          map_df(dplyr::bind_rows)
     #
-     dplyr::bind_rows(the_calls, the_puts)
+     tibble::as_tibble(dplyr::bind_rows(the_calls, the_puts))
 
 }
