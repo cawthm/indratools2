@@ -99,12 +99,15 @@ td_get_option_chain <- function(  symbol = "TSLA",
     resource_root <- "https://api.tdameritrade.com/v1/"
     url <- paste0(resource_root, 'marketdata/chains',fields)
     #url
-    r <- httr::GET(url = url, httr::add_headers(
+    #r <- httr::GET(url = url, httr::add_headers(
         .headers = c("Authorization" = paste0("Bearer ", access_token),
                      "Content-Type" = "application/json"))
         )
 
-    #r
+    r <- httr::RETRY(GET, url = url, httr::add_headers(
+        .headers = c("Authorization" = paste0("Bearer ", access_token),
+                     "Content-Type" = "application/json"))
+    )
 
      the_calls <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
          purrr::pluck("callExpDateMap") %>%

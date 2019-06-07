@@ -203,6 +203,7 @@ ms_to_datetime <- function(milliseconds_since_epoch, tz = "America/Chicago") {
 #'
 #' @examples
 datetime_to_ms <- function(dttm) {
+  options(digits = 13)
   t <- dttm %>% as.POSIXct() %>% as.numeric()
   t * 1000
 }
