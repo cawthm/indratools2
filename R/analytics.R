@@ -100,11 +100,11 @@ td_get_option_chain <- function(  symbol = "TSLA",
     url <- paste0(resource_root, 'marketdata/chains',fields)
     #url
     #r <- httr::GET(url = url, httr::add_headers(
-        .headers = c("Authorization" = paste0("Bearer ", access_token),
-                     "Content-Type" = "application/json"))
-        )
+        #.headers = c("Authorization" = paste0("Bearer ", access_token),
+        #             "Content-Type" = "application/json"))
+       #)
 
-    r <- httr::RETRY(GET, url = url, httr::add_headers(
+    r <- httr::RETRY("GET", url = url, httr::add_headers(
         .headers = c("Authorization" = paste0("Bearer ", access_token),
                      "Content-Type" = "application/json"))
     )
