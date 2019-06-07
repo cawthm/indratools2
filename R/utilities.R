@@ -43,7 +43,7 @@ url_encode <- function(string) {
 #' @examples
 #' option_name_parser(data.frame(key = "TSLA_110119C315"), "key")
 option_name_parser <- function(df, key) {
-    # break up the key field in stages; ROS = 'rest of string'
+    # break up the key field in stages; ROS = 'Rest Of String'
     df2 <- tidyr::separate(df, key, into = c("stock", "ROS"), sep = "_", remove = F) %>%
         mutate(stock = stringr::str_remove(stock, '[0-9]'))
 
