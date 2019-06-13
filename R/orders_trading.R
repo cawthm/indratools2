@@ -90,11 +90,20 @@ td_delete_order <- function(order_number, access_token) {
     )
 }
 
-td_get_account <- function(account_no = "489837238", fields = c("positions", "orders"), access_token) {
+#' Takes a snapshot of
+#'
+#' @param account_no Funciton currently defaults to sidePocket's act #
+#' @param access_token Valid access_token, typically generated via update_refresh_tokens()
+#'
+#' @return a tibble()
+#' @export
+#'
+#' @examples td_get_account(access_token = .refresh_token$access_token)
+td_get_account <- function(account_no = "489837238", access_token) {
 
     url <- paste0("https://api.tdameritrade.com/v1/accounts/",
                   account_no,
-                  "fields=",
+                  "fields=positions",
                   paste(fields, collapse = ","))
 
     #json_to_send
@@ -102,5 +111,9 @@ td_get_account <- function(account_no = "489837238", fields = c("positions", "or
                                                 c("Authorization" = paste0("Bearer ", access_token),
                                                                              "Content-Type" = "application/json"))
     )
-    r
+    some_json <- httr::content(r, as = "text", encoding = "UTF-8")
+
+    jsonlite::fromJSON(some_json)$securitiesAccount$currentBalances %>%
+        as_tibble() %>%
+        mutate(timestamp = indratools2::datetime_to_ms(Sys.time()))
 }
