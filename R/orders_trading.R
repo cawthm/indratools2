@@ -60,7 +60,7 @@ td_order <- function(symbol,
 #' td_get_orders(refresh_tokens$access_tokens)
 td_get_orders <- function(access_token) {
     url <- 'https://api.tdameritrade.com/v1/accounts/489837238?fields=orders'
-    r <- httr::GET(url = url, httr::add_headers(
+    r <- httr::RETRY(verb = "GET", url = url, httr::add_headers(
         "Authorization" = paste0("Bearer ", access_token))
     )
     r
@@ -85,12 +85,12 @@ td_order_status <- function(access_token) {}
 #' @examples
 #' td_delete_order(order_number = "123456", access_token = .token_set$access_token)
 td_delete_order <- function(order_number, access_token) {
-    httr::DELETE(order_url, httr::add_headers(Authorization  =
+    httr::RETRY(verb = "DELETE", order_url, httr::add_headers(Authorization  =
                                                   paste0("Bearer ", access_token))
     )
 }
 
-#' Takes a snapshot of
+#' Takes a snapshot of account balance
 #'
 #' @param account_no Funciton currently defaults to sidePocket's act #
 #' @param access_token Valid access_token, typically generated via update_refresh_tokens()
@@ -99,7 +99,7 @@ td_delete_order <- function(order_number, access_token) {
 #' @export
 #'
 #' @examples td_get_account(access_token = .refresh_token$access_token)
-td_get_account <- function(account_no = "489837238", access_token) {
+td_get_account_balances <- function(account_no = "489837238", access_token) {
 
     url <- paste0("https://api.tdameritrade.com/v1/accounts/",
                   account_no,
@@ -107,7 +107,7 @@ td_get_account <- function(account_no = "489837238", access_token) {
                   paste(fields, collapse = ","))
 
     #json_to_send
-    r <- httr::GET(url = url, httr::add_headers( .headers =
+    r <- httr::RETRY(verb = "GET", url = url, httr::add_headers( .headers =
                                                 c("Authorization" = paste0("Bearer ", access_token),
                                                                              "Content-Type" = "application/json"))
     )
