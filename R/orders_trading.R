@@ -14,7 +14,13 @@
 #'
 #' @examples
 #' td_order(symbol = "TSLA", "LIMIT", 10, price = 300, "SELL")
-td_order <- function(symbol, orderType = "LIMIT", quantity = 0, price, instruction = "BUY", account_no = "489837238") {
+td_order <- function(symbol,
+                     orderType = "LIMIT",
+                     quantity = 0,
+                     price,
+                     instruction = "BUY",
+                     account_no = "489837238",
+                     access_token) {
 
     #apiverb needs to contemplate "GET, PUT, POST, DELETE, OPTIONS, HEAD, PATCH"
 
@@ -38,7 +44,7 @@ td_order <- function(symbol, orderType = "LIMIT", quantity = 0, price, instructi
 
     #json_to_send
     r <- httr::POST(url = url, body = json_to_send, httr::add_headers( .headers =
-                                                                           c("Authorization" = paste0("Bearer ", refresh_tokens$access_token),
+                                                                           c("Authorization" = paste0("Bearer ", access_token),
                                                                              "Content-Type" = "application/json"))
     )
     r
@@ -77,14 +83,14 @@ td_order_status <- function(access_token) {}
 #' @export
 #'
 #' @examples
-#' td_delete_order(order_number = "123456")
-td_delete_order <- function(order_number) {
+#' td_delete_order(order_number = "123456", access_token = .token_set$access_token)
+td_delete_order <- function(order_number, access_token) {
     httr::DELETE(order_url, httr::add_headers(Authorization  =
-                                                  paste0("Bearer ", refresh_tokens$access_token))
+                                                  paste0("Bearer ", access_token))
     )
 }
 
-td_get_account <- function(account_no = "489837238", fields = c("positions", "orders")) {
+td_get_account <- function(account_no = "489837238", fields = c("positions", "orders"), access_token) {
 
     url <- paste0("https://api.tdameritrade.com/v1/accounts/",
                   account_no,
@@ -93,7 +99,7 @@ td_get_account <- function(account_no = "489837238", fields = c("positions", "or
 
     #json_to_send
     r <- httr::GET(url = url, httr::add_headers( .headers =
-                                                c("Authorization" = paste0("Bearer ", refresh_tokens$access_token),
+                                                c("Authorization" = paste0("Bearer ", access_token),
                                                                              "Content-Type" = "application/json"))
     )
     r
