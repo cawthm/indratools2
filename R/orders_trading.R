@@ -107,10 +107,10 @@ td_get_account_balances <- function(account_no = "489837238", access_token) {
                   "?fields=positions")
 
     #json_to_send
-    r <- httr::RETRY(verb = "GET", url = url, httr::add_headers( .headers =
-                                                c("Authorization" = paste0("Bearer ", access_token),
-                                                                             "Content-Type" = "application/json"))
+    r <- httr::RETRY(verb = "GET", url = url, httr::add_headers(
+        "Authorization" = paste0("Bearer ", access_token))
     )
+
     some_json <- httr::content(r, as = "text", encoding = "UTF-8")
 
     jsonlite::fromJSON(some_json)$securitiesAccount$currentBalances %>%
