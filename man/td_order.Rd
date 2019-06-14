@@ -5,7 +5,7 @@
 \title{Primary trading function USE WITH CAUTION}
 \usage{
 td_order(symbol, orderType = "LIMIT", quantity = 0, price,
-  instruction = "BUY")
+  instruction = "BUY", account_no = "489837238", access_token)
 }
 \arguments{
 \item{symbol}{A security symbol, eg "IBM", "GS", "TSLA_110119C315"}
@@ -17,6 +17,8 @@ td_order(symbol, orderType = "LIMIT", quantity = 0, price,
 \item{price}{Applies to LIMIT orders only; the price at which to execute}
 
 \item{instruction}{"BUY" or "SELL" or *MANY* others}
+
+\item{account_no}{TD account #}
 }
 \value{
 The reply to the POST command includes an order # in the header
@@ -25,5 +27,5 @@ The reply to the POST command includes an order # in the header
 Primary trading function USE WITH CAUTION
 }
 \examples{
-td_order(symbol = "TSLA", "LIMIT", 10, price = 300, )
+td_order(symbol = "TSLA", "LIMIT", 10, price = 300, "SELL")
 }

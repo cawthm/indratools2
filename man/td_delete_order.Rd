@@ -4,7 +4,7 @@
 \alias{td_delete_order}
 \title{This will eventually delete an order}
 \usage{
-td_delete_order(order_number)
+td_delete_order(order_number, access_token)
 }
 \arguments{
 \item{order_url}{}
@@ -16,5 +16,5 @@ Will return a tibble with a confirm #(?) and a timestamp
 This will eventually delete an order
 }
 \examples{
-td_delete_order(order_number = "123456")
+td_delete_order(order_number = "123456", access_token = .token_set$access_token)
 }
