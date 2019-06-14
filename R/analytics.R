@@ -61,6 +61,8 @@ td_market_value_traded <- function(symbol, refresh_tokens = .token_set1, sleep =
 #' @param daysToExpiration Used for getting options greeks. Default is NULL
 #' @param expMonth Default is "ALL"
 #' @param optionType "CALL", "PUT", or "ALL".  Default is "ALL"
+#' @param fromDate
+#' @param access_token A valid access token (they expire within 30 mins of refresh)
 #'
 #' @return A chr vector of option symbol names.
 #' @export
@@ -120,5 +122,68 @@ td_get_option_chain <- function(  symbol = "TSLA",
          map_df(dplyr::bind_rows)
     #
      tibble::as_tibble(dplyr::bind_rows(the_calls, the_puts))
+
+}
+
+#' Title
+#'
+#' @param apikey The TD developer api key, aka the app name
+#' @param periodType Valid values are `day`, `month`, `year,` or `ytd`; default is day if blank
+#' @param period The number of periods to show of PeriodType.
+#' @param frequencyType Valid frequencyTypes for PeriodType: day: 1,2,3,4,5,10*
+#'                                                           month: 1*, 2, 3, 6
+#'                                                           year: 1*, 2, 3, 5, 10, 15, 20
+#'                                                           ytd: 1*
+#'
+#' @param frequency Valid frequencies by frequencyType: minute: 1*, 5, 10, 15, 30
+#'                                                      daily: 1*
+#'                                                      weekly: 1*
+#'                                                      monthly: 1*
+
+
+
+#' @param endDate End date as milliseconds since epoch.
+#' If startDate and endDate are provided, period should not be provided.
+#' Default is previous trading day.
+#' @param startDate Start date as milliseconds since epoch.
+#' If startDate and endDate are provided, period should not be provided.
+#' @param needExtendedHoursData Default is `true`. `false` for reg mkt hours only
+#' @param access_token A valid access token (they expire within 30 mins of refresh)
+#'
+#' @return A tibble of dates and HLCO prices
+#' @export
+#'
+#' @examples td_get_price_history("$SPX.X")
+td_get_price_history <- function(symbol = "TSLA",
+                                 apikey = "moonriver@AMER.OAUTHAP",
+                                 periodType = "day",
+                                 period = 1,
+                                 frequencyType = "minute",
+                                 frequency=1,
+                                 endDate="",
+                                 startDate="",
+                                 needExtendedHoursData = "true",
+                                 access_token) {
+    #  https://api.tdameritrade.com/v1/marketdata/$SPX.X/pricehistory?apikey=EXAMPLE&periodType=month&period=1&frequencyType=daily
+
+    resource <- paste0("https://api.tdameritrade.com/v1/", symbol, "/pricehistory")
+
+
+    fields <- paste0("?apikey=", url_encode(apikey),
+                     "&apikey=", url_encode(apikey),
+                     "&periodType=", url_encode(periodType),
+                     "&period=", url_encode(period),
+                     "&frequencyType=", url_encode(frequencyType),
+                     "&frequency=", url_encode(frequency),
+                     "&endDate=", url_encode(endDate),
+                     "&startDate=", url_encode(startDate),
+                     "&needExtendedHoursData" = url_encode(needExtendedHoursData)
+                     )
+    complete_url <- paste0(resource, fields)
+
+    r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
+        .headers = c("Authorization" = paste0("Bearer ", access_token),
+                     "Content-Type" = "application/json")))
+    r
 
 }

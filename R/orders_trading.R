@@ -77,7 +77,8 @@ td_order_status <- function(access_token) {}
 
 #' This will eventually delete an order
 #'
-#' @param order_url
+#' @param order_number
+#' @param access_token A valid access token (they expire within 30 mins of refresh)
 #'
 #' @return Will return a tibble with a confirm #(?) and a timestamp
 #' @export
