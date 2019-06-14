@@ -104,7 +104,7 @@ td_get_account_balances <- function(account_no = "489837238", access_token) {
 
     url <- paste0("https://api.tdameritrade.com/v1/accounts/",
                   account_no,
-                  "fields=positions")
+                  "?fields=positions")
 
     #json_to_send
     r <- httr::RETRY(verb = "GET", url = url, httr::add_headers( .headers =
