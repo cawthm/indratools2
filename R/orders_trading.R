@@ -98,7 +98,8 @@ td_delete_order <- function(order_number, access_token) {
 #' @return a tibble()
 #' @export
 #'
-#' @examples td_get_account(access_token = .refresh_token$access_token)
+#' @examples
+#' td_get_account(access_token = .refresh_token$access_token)
 td_get_account_balances <- function(account_no = "489837238", access_token) {
 
     url <- paste0("https://api.tdameritrade.com/v1/accounts/",
