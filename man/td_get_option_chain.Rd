@@ -44,6 +44,8 @@ td_get_option_chain(symbol = "TSLA", apikey = "moonriver@AMER.OAUTHAP",
 \item{expMonth}{Default is "ALL"}
 
 \item{optionType}{"CALL", "PUT", or "ALL".  Default is "ALL"}
+
+\item{access_token}{A valid access token (they expire within 30 mins of refresh)}
 }
 \value{
 A chr vector of option symbol names.

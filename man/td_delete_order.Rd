@@ -7,7 +7,7 @@
 td_delete_order(order_number, access_token)
 }
 \arguments{
-\item{order_url}{}
+\item{access_token}{A valid access token (they expire within 30 mins of refresh)}
 }
 \value{
 Will return a tibble with a confirm #(?) and a timestamp
