@@ -155,35 +155,47 @@ td_get_option_chain <- function(  symbol = "TSLA",
 #'
 #' @examples td_get_price_history("$SPX.X")
 td_get_price_history <- function(symbol = "TSLA",
-                                 apikey = "moonriver@AMER.OAUTHAP",
-                                 periodType = "day",
-                                 period = 1,
-                                 frequencyType = "minute",
-                                 frequency=1,
-                                 endDate="",
-                                 startDate="",
-                                 needExtendedHoursData = "true",
-                                 access_token) {
+                                                       apikey = "moonriver@AMER.OAUTHAP",
+                                                       periodType = "day",
+                                                       period = 1,
+                                                       frequencyType = "minute",
+                                                       frequency=1,
+                                                       endDate="",
+                                                       startDate="",
+                                                       needExtendedHoursData = "true",
+                                                       access_token) {
     #  https://api.tdameritrade.com/v1/marketdata/$SPX.X/pricehistory?apikey=EXAMPLE&periodType=month&period=1&frequencyType=daily
 
-    resource <- paste0("https://api.tdameritrade.com/v1/", symbol, "/pricehistory")
+    resource <- paste0("https://api.tdameritrade.com/v1/marketdata/", symbol, "/pricehistory")
 
 
-    fields <- paste0("?apikey=", url_encode(apikey),
-                     "&apikey=", url_encode(apikey),
+    ## TO DO: need to add logic capturing "If startDate and endDate are provided,
+    ## period should not be provided. Default is previous trading day." from TD API
+
+    fields <- paste0("?apikey=", apikey,
                      "&periodType=", url_encode(periodType),
                      "&period=", url_encode(period),
                      "&frequencyType=", url_encode(frequencyType),
                      "&frequency=", url_encode(frequency),
-                     "&endDate=", url_encode(endDate),
-                     "&startDate=", url_encode(startDate),
-                     "&needExtendedHoursData" = url_encode(needExtendedHoursData)
-                     )
+                     #"&endDate=", url_encode(endDate),
+                     #"&startDate=", url_encode(startDate),
+                     "&needExtendedHoursData=", url_encode(needExtendedHoursData)
+    )
     complete_url <- paste0(resource, fields)
+
+    #complete_url
+
+    # complete_url1 <- paste0("https://api.tdameritrade.com/v1/marketdata/$SPX.X/pricehistory?apikey=",
+    #                         url_encode("moonriver@AMER.OAUTHAP"),
+    #                         "&periodType=month&period=1&frequencyType=daily",
+    #                         "&frequency=1&needExtendedHoursData=true")
 
     r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
         .headers = c("Authorization" = paste0("Bearer ", access_token),
                      "Content-Type" = "application/json")))
-    r
+    the_list <- content(r)
+
+    ## need to parse this into a df/ tibble
+    the_list
 
 }
