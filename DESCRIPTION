@@ -17,4 +17,6 @@ VignetteBuilder: knitr
 Imports: 
     dplyr,
     tidyr,
-    purrr
+    purrr,
+    httr,
+    tibble
