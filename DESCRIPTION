@@ -16,4 +16,5 @@ Suggests:
 VignetteBuilder: knitr
 Imports: 
     dplyr,
-    tidyr
+    tidyr,
+    purrr
