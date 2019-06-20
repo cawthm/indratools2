@@ -196,6 +196,6 @@ td_get_price_history <- function(symbol = "TSLA",
     the_list <- content(r)
 
     ## need to parse this into a df/ tibble
-    the_list
+    the_list %>% purrr::pluck("candles") %>% purrr::map_df(as_tibble)
 
 }
