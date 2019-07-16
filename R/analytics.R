@@ -8,19 +8,20 @@
 #' @examples
 #' td_market_value_traded("MSFT")
 #' @importFrom magrittr "%>%"
-td_market_value_traded <- function(symbol, refresh_tokens = .token_set1, sleep = .1) {
+td_market_value_traded <- function(symbol, refresh_token) {
 
     url1 <- paste0("https://api.tdameritrade.com/v1/marketdata/", symbol,"/pricehistory") # for price history
     url2 <- "https://api.tdameritrade.com/v1/instruments" # for mkt cap
 
-    url1_w_params <- paste0(url1,"?apikey=",httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
+    url1_w_params <- paste0(url1,"?apikey=",
+                            httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
                             "&periodType=", "month",
                             "&period=", 1, # will give one month
                             "&frequencyType=","daily",
                             "&frequency=",1)
 
     #url1_w_params
-    r_url1 <- httr::RETRY("GET", url = url1_w_params)#, httr::add_headers(Authorization = paste0("Bearer ", refresh_tokens$access_token)))
+    r_url1 <- httr::RETRY("GET", url = url1_w_params, times = 20)#, httr::add_headers(Authorization = paste0("Bearer ", refresh_tokens$access_token)))
     #r_url1
     returned_json <- httr::content(r_url1, as = "text")
 
@@ -31,7 +32,7 @@ td_market_value_traded <- function(symbol, refresh_tokens = .token_set1, sleep =
                                   "&symbol=", symbol,
                                   "&projection=", "fundamental")
     Sys.sleep(sleep)
-    r_url2 <- httr::RETRY("GET", url = url2_w_params) %>% httr::content() %>% purrr::flatten()
+    r_url2 <- httr::RETRY("GET", url = url2_w_params, times = 20) %>% httr::content() %>% purrr::flatten()
     #r_url2
     # flatten takes the symbol name out of the returned list, which is ugly from content()
 
@@ -39,7 +40,7 @@ td_market_value_traded <- function(symbol, refresh_tokens = .token_set1, sleep =
                                   market_cap_bn = shares_out_mm * close/1000,
                                   value_traded_bn = volume * close /1000000000,
                                   val_div_mkt_cap = value_traded_bn/ market_cap_bn)
-    Sys.sleep(sleep)
+    #Sys.sleep(sleep)
     tidy_df
 }
 
