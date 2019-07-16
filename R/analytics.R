@@ -193,7 +193,7 @@ td_get_price_history <- function(symbol = "TSLA",
     r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
         .headers = c("Authorization" = paste0("Bearer ", access_token),
                      "Content-Type" = "application/json")))
-    the_list <- content(r)
+    the_list <- httr::content(r)
 
     ## need to parse this into a df/ tibble
     the_list %>% purrr::pluck("candles") %>% purrr::map_df(as_tibble)
