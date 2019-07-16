@@ -2,7 +2,7 @@
 % Please edit documentation in R/analytics.R
 \name{td_get_price_history}
 \alias{td_get_price_history}
-\title{Title}
+\title{Get HLCO price history for a symbol}
 \usage{
 td_get_price_history(symbol = "TSLA",
   apikey = "moonriver@AMER.OAUTHAP", periodType = "day", period = 1,
@@ -41,7 +41,7 @@ If startDate and endDate are provided, period should not be provided.}
 A tibble of dates and HLCO prices
 }
 \description{
-Title
+Get HLCO price history for a symbol
 }
 \examples{
 td_get_price_history("$SPX.X")

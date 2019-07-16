@@ -20,27 +20,24 @@ td_market_value_traded <- function(symbol, refresh_token) {
                             "&frequencyType=","daily",
                             "&frequency=",1)
 
-    #url1_w_params
     r_url1 <- httr::RETRY("GET", url = url1_w_params, times = 20)#, httr::add_headers(Authorization = paste0("Bearer ", refresh_tokens$access_token)))
     #r_url1
     returned_json <- httr::content(r_url1, as = "text")
 
-    tidy_df <- jsonlite::fromJSON(returned_json)[[1]] %>% dplyr::mutate(stock = symbol, pretty_date = ms_to_datetime(datetime))
-    #tidy_df
+    tidy_df <- jsonlite::fromJSON(returned_json)[[1]] %>%
+        dplyr::mutate(stock = symbol, pretty_date = ms_to_datetime(datetime))
 
     url2_w_params <- paste0(url2,"?apikey=",httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
                                   "&symbol=", symbol,
                                   "&projection=", "fundamental")
-    Sys.sleep(sleep)
+
     r_url2 <- httr::RETRY("GET", url = url2_w_params, times = 20) %>% httr::content() %>% purrr::flatten()
-    #r_url2
-    # flatten takes the symbol name out of the returned list, which is ugly from content()
 
     tidy_df <- tidy_df %>% dplyr::mutate(shares_out_mm = r_url2$fundamental$marketCapFloat,
                                   market_cap_bn = shares_out_mm * close/1000,
                                   value_traded_bn = volume * close /1000000000,
                                   val_div_mkt_cap = value_traded_bn/ market_cap_bn)
-    #Sys.sleep(sleep)
+
     tidy_df
 }
 
@@ -126,7 +123,7 @@ td_get_option_chain <- function(  symbol = "TSLA",
 
 }
 
-#' Title
+#' Get HLCO price history for a symbol
 #'
 #' @param apikey The TD developer api key, aka the app name
 #' @param periodType Valid values are `day`, `month`, `year,` or `ytd`; default is day if blank
