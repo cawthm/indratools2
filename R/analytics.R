@@ -34,7 +34,7 @@ td_market_value_traded <- function(symbol, refresh_token) {
     r_url2 <- httr::RETRY("GET", url = url2_w_params, times = 20) %>% httr::content() %>% purrr::flatten()
 
     tidy_df <- tidy_df %>% dplyr::mutate(shares_out_mm = r_url2$fundamental$marketCapFloat,
-                                  market_cap_bn = shares_out_mm * close/1000,
+                                  market_cap_bn = r_url2$fundamental$marketCap,
                                   value_traded_bn = volume * close /1000000000,
                                   val_div_mkt_cap = value_traded_bn/ market_cap_bn)
 
