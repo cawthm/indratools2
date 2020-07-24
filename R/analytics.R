@@ -7,9 +7,9 @@
 #' @export
 #'
 #' @examples
-#' td_market_value_traded("MSFT")
+#' td_market_value_traded("MSFT", 2)
 #' @importFrom magrittr "%>%"
-td_market_value_traded <- function(symbol, n_years) {
+td_market_value_traded <- function(symbol, n_years = 2) {
 
     url1 <- paste0("https://api.tdameritrade.com/v1/marketdata/", symbol,"/pricehistory") # for price history
     url2 <- "https://api.tdameritrade.com/v1/instruments" # for mkt cap
