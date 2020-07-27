@@ -26,7 +26,7 @@ td_market_value_traded <- function(symbol, n_years = 2) {
     returned_json <- httr::content(r_url1, as = "text")
 
     tidy_df <- jsonlite::fromJSON(returned_json)[[1]] %>%
-        dplyr::mutate(stock = symbol, pretty_date = ms_to_datetime(datetime))
+        dplyr::mutate(ticker = symbol, pretty_date = ms_to_datetime(datetime))
 
     url2_w_params <- paste0(url2,"?apikey=",httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
                                   "&symbol=", symbol,
@@ -43,6 +43,9 @@ td_market_value_traded <- function(symbol, n_years = 2) {
                                   market_cap_bn = shares_out_mm * close/ 1000,
                                   value_traded_bn = volume * close /1e9,
                                   val_div_mkt_cap = value_traded_bn/ market_cap_bn)
+
+    ## TO DO
+    ## IF this whole process fails, return an empty df
 
     tidy_df
 }
