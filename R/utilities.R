@@ -106,7 +106,7 @@ parser_data <- function(raw_parse) {
 
     body <- map2(service, body, .f = helper_fn)
 
-    tibble(service, timestamp, body) %>% unnest()
+    tibble(service, timestamp, body) %>% unnest(col = c(body))
 
 }
 
