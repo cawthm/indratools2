@@ -17,7 +17,7 @@ td_market_value_traded <- function(symbol, n_years = 2) {
     url1_w_params <- paste0(url1,"?apikey=",
                             httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
                             "&periodType=", "year",
-                            "&period=", 1, # will give one month
+                            "&period=", n_years, # will give one month
                             "&frequencyType=","daily",
                             "&frequency=",1)
 
