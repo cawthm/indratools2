@@ -211,7 +211,7 @@ td_get_price_history <- function(symbol = "TSLA",
 
 #' Get quote for individal stock
 #'
-#' @param symbol A valid stock ticker
+#' @param symbol A vector of stock tickers
 #' @param apikey The TD developer api key, aka the app name
 #' @param access_token A valid access token (they expire within 30 mins of refresh)
 #'
@@ -219,27 +219,30 @@ td_get_price_history <- function(symbol = "TSLA",
 #' @export
 #'
 #' @examples
-td_get_quote <- function(symbol = "TSLA",
-                                 apikey = "moonriver@AMER.OAUTHAP",
-                                 access_token = "") {
+td_get_quotes <- function(symbols = c("AAPL", "TSLA"),
+                         apikey = "moonriver@AMER.OAUTHAP",
+                         access_token) {
 
-    resource <- paste0("https://api.tdameritrade.com/v1/marketdata/", symbol, "/quotes")
+    resource <- paste0("https://api.tdameritrade.com/v1/marketdata/quotes")
 
-    fields <- paste0("?apikey=", apikey)
+    symbolstring = paste0(symbols, collapse = ",")
+
+    fields <- paste0("?apikey=", url_encode(apikey),"&symbol=" ,url_encode(symbolstring))
 
     complete_url <- paste0(resource, fields)
-
-    r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
-        .headers = c("Authorization" = paste0("Bearer ", access_token),
-                     "Content-Type" = "application/json")))
-    # r <- httr::RETRY("GET", url = complete_url)
-
-    httr::content(r) %>%
-        pluck(symbol) %>%
-        as_tibble() %>%
-        select(ticker = symbol,
-               open = openPrice, high = highPrice, low = lowPrice, close = closePrice,
-               volume = totalVolume, quoteTimeInLong)
+    # complete_url
+    #r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
+    #        .headers = c("Authorization" = paste0("Bearer ", access_token),
+    #                 "Content-Type" = "application/json")))
+      r <- httr::RETRY("GET", url = complete_url)
+    #
+     httr::content(r, as = "text") %>%
+          jsonlite::fromJSON(x) %>%
+          tibble(stock = names(.), body = .) %>%
+          map_dfr(.x = .$body, .f = as_tibble) %>%
+          select(ticker = symbol,
+                open = openPrice, high = highPrice, low = lowPrice, close = closePrice,
+                volume = totalVolume, quoteTimeInLong)
 
 
 }
