@@ -17,7 +17,7 @@ td_market_value_traded <- function(symbol, n_years = 2) {
     url1_w_params <- paste0(url1,"?apikey=",
                             httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
                             "&periodType=", "year",
-                            "&period=", n_years, # will give one month
+                            "&period=", n_years, # will give one year
                             "&frequencyType=","daily",
                             "&frequency=",1)
 
@@ -206,3 +206,41 @@ td_get_price_history <- function(symbol = "TSLA",
     the_list %>% purrr::pluck("candles") %>% purrr::map_df(as_tibble)
 
 }
+
+
+
+#' Get quote for individal stock
+#'
+#' @param symbol A valid stock ticker
+#' @param apikey The TD developer api key, aka the app name
+#' @param access_token A valid access token (they expire within 30 mins of refresh)
+#'
+#' @return A tibble of prices
+#' @export
+#'
+#' @examples
+td_get_quote <- function(symbol = "TSLA",
+                                 apikey = "moonriver@AMER.OAUTHAP",
+                                 access_token = "") {
+
+    resource <- paste0("https://api.tdameritrade.com/v1/marketdata/", symbol, "/quotes")
+
+    fields <- paste0("?apikey=", apikey)
+
+    complete_url <- paste0(resource, fields)
+
+    r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
+        .headers = c("Authorization" = paste0("Bearer ", access_token),
+                     "Content-Type" = "application/json")))
+    # r <- httr::RETRY("GET", url = complete_url)
+
+    httr::content(r) %>%
+        pluck(symbol) %>%
+        as_tibble() %>%
+        select(ticker = symbol,
+               open = openPrice, high = highPrice, low = lowPrice, close = closePrice,
+               volume = totalVolume, quoteTimeInLong)
+
+
+}
+
