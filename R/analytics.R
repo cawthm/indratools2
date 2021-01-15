@@ -238,7 +238,7 @@ td_get_quotes <- function(symbols = c("AAPL", "TSLA"),
                     "Content-Type" = "application/json")))
 
      httr::content(r, as = "text") %>%
-          jsonlite::fromJSON(x) %>%
+          jsonlite::fromJSON() %>%
           tibble(stock = names(.), body = .) %>%
           map_dfr(.x = .$body, .f = as_tibble) %>%
           select(ticker = symbol,
