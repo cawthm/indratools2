@@ -4,10 +4,18 @@
 \alias{td_get_price_history}
 \title{Get HLCO price history for a symbol}
 \usage{
-td_get_price_history(symbol = "TSLA",
-  apikey = "moonriver@AMER.OAUTHAP", periodType = "day", period = 1,
-  frequencyType = "minute", frequency = 1, endDate = "",
-  startDate = "", needExtendedHoursData = "true", access_token)
+td_get_price_history(
+  symbol = "TSLA",
+  apikey = "moonriver@AMER.OAUTHAP",
+  periodType = "day",
+  period = 1,
+  frequencyType = "minute",
+  frequency = 1,
+  endDate = "",
+  startDate = "",
+  needExtendedHoursData = "true",
+  access_token
+)
 }
 \arguments{
 \item{apikey}{The TD developer api key, aka the app name}

@@ -4,9 +4,15 @@
 \alias{requestor}
 \title{Send requests to TD streamer}
 \usage{
-requestor(parameter_keys, requestid = "2", service = "QUOTE",
-  command = "SUBS", parameter_fields = c(0:11), pretty = FALSE,
-  user_prins)
+requestor(
+  parameter_keys,
+  requestid = "2",
+  service = "QUOTE",
+  command = "SUBS",
+  parameter_fields = c(0:11),
+  pretty = FALSE,
+  user_prins
+)
 }
 \arguments{
 \item{parameter_keys}{Vector of symbols requested}

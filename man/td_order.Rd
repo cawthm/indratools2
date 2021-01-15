@@ -4,8 +4,15 @@
 \alias{td_order}
 \title{Primary trading function USE WITH CAUTION}
 \usage{
-td_order(symbol, orderType = "LIMIT", quantity = 0, price,
-  instruction = "BUY", account_no = "489837238", access_token)
+td_order(
+  symbol,
+  orderType = "LIMIT",
+  quantity = 0,
+  price,
+  instruction = "BUY",
+  account_no = "489837238",
+  access_token
+)
 }
 \arguments{
 \item{symbol}{A security symbol, eg "IBM", "GS", "TSLA_110119C315"}

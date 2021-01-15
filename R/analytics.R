@@ -230,12 +230,11 @@ td_get_quotes <- function(symbols = c("AAPL", "TSLA"),
     fields <- paste0("?apikey=", url_encode(apikey),"&symbol=" ,url_encode(symbolstring))
 
     complete_url <- paste0(resource, fields)
-    # complete_url
-    #r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
-    #        .headers = c("Authorization" = paste0("Bearer ", access_token),
-    #                 "Content-Type" = "application/json")))
-      r <- httr::RETRY("GET", url = complete_url)
-    #
+
+    r <- httr::RETRY("GET", url = complete_url, httr::add_headers(
+           .headers = c("Authorization" = paste0("Bearer ", access_token),
+                    "Content-Type" = "application/json")))
+
      httr::content(r, as = "text") %>%
           jsonlite::fromJSON(x) %>%
           tibble(stock = names(.), body = .) %>%

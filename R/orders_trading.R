@@ -36,7 +36,7 @@ td_order <- function(symbol,
                requestedDestination = "AUTO",
                orderLegCollection = list(tibble(orderLegType = "EQUITY",
                                                 instrument = tibble(assetType = "EQUITY",
-                                                                    symbol = "TSLA"),
+                                                                    symbol = symbol),
                                                 instruction = instruction,
                                                 quantity = quantity)),
                orderStrategyType = "SINGLE")

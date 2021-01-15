@@ -4,13 +4,26 @@
 \alias{td_get_option_chain}
 \title{Get a term structure of extant option contract symbols}
 \usage{
-td_get_option_chain(symbol = "TSLA", apikey = "moonriver@AMER.OAUTHAP",
-  contractType = "ALL", strikeCount = 30, includeQuotes = FALSE,
-  strategy = "SINGLE", interval = NULL, strike = NULL,
-  range = "NTM", fromDate = Sys.Date(), monthsToGet = 12,
-  volatility = NULL, underlyingPrice = NULL, interestRate = NULL,
-  daysToExpiration = NULL, expMonth = "ALL", optionType = "ALL",
-  access_token = .token_set$access_token)
+td_get_option_chain(
+  symbol = "TSLA",
+  apikey = "moonriver@AMER.OAUTHAP",
+  contractType = "ALL",
+  strikeCount = 30,
+  includeQuotes = FALSE,
+  strategy = "SINGLE",
+  interval = NULL,
+  strike = NULL,
+  range = "NTM",
+  fromDate = Sys.Date(),
+  monthsToGet = 12,
+  volatility = NULL,
+  underlyingPrice = NULL,
+  interestRate = NULL,
+  daysToExpiration = NULL,
+  expMonth = "ALL",
+  optionType = "ALL",
+  access_token = .token_set$access_token
+)
 }
 \arguments{
 \item{symbol}{Symbol of the underlying, eg "TSLA"}

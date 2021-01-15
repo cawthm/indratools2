@@ -4,8 +4,14 @@
 \alias{td_post_access_token}
 \title{Obtain access or refresh tokens from the TD API}
 \usage{
-td_post_access_token(grant_type, refresh_token, access_type, code,
-  client_id, redirect_uri)
+td_post_access_token(
+  grant_type,
+  refresh_token,
+  access_type,
+  code,
+  client_id,
+  redirect_uri
+)
 }
 \arguments{
 \item{grant_type}{The grant type of the oAuth scheme.

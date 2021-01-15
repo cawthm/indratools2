@@ -4,10 +4,10 @@
 \alias{td_market_value_traded}
 \title{Return a df of volume, mkt cap and mkt value traded}
 \usage{
-td_market_value_traded(symbol, refresh_token)
+td_market_value_traded(symbol, n_years = 2)
 }
 \arguments{
-\item{symbol}{}
+\item{n_years}{}
 }
 \value{
 A tibble of the last n days' trading volume, HLC, and mkt cap
@@ -16,5 +16,5 @@ A tibble of the last n days' trading volume, HLC, and mkt cap
 Return a df of volume, mkt cap and mkt value traded
 }
 \examples{
-td_market_value_traded("MSFT")
+td_market_value_traded("MSFT", 2)
 }

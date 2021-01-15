@@ -4,8 +4,10 @@
 \alias{td_get_user_principals}
 \title{Get user principals method from TD API.}
 \usage{
-td_get_user_principals(access_token,
-  fields = "streamerSubscriptionKeys,streamerConnectionInfo")
+td_get_user_principals(
+  access_token,
+  fields = "streamerSubscriptionKeys,streamerConnectionInfo"
+)
 }
 \arguments{
 \item{access_token}{Authentication token obtained from successful call to \code{td_post_access_token()}}

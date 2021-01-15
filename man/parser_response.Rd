@@ -24,6 +24,6 @@ Once having been initially parsed by an internal call to \code{jsonlite::fromJSO
 uses a call to \code{switch()} to one of these functions.
 }
 \examples{
-parser_response(jsonlite::fromJSON('{\\"response\\":[{\\"service\\":\\"ADMIN\\",\\"requestid\\":\\"0\\",\\"command\\":\\"LOGIN\\",\\"timestamp\\":1541541928754,\\"content\\":{\\"code\\":0,\\"msg\\":\\"07-2\\"}}]}'))
+parser_response(jsonlite::fromJSON('{\"response\":[{\"service\":\"ADMIN\",\"requestid\":\"0\",\"command\":\"LOGIN\",\"timestamp\":1541541928754,\"content\":{\"code\":0,\"msg\":\"07-2\"}}]}'))
 this is found at login after sending user principals
 }
