@@ -118,12 +118,14 @@ td_get_option_chain <- function(  symbol = "TSLA",
                      "Content-Type" = "application/json"))
     )
 
-     the_calls <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
+    the_content <- httr::content(r, as = "text")
+
+     the_calls <- the_content %>% jsonlite::fromJSON() %>%
          purrr::pluck("callExpDateMap") %>%
          purrr::map(pluck) %>%
          map_df(dplyr::bind_rows)
     #
-     the_puts <- httr::content(r, as = "text") %>% jsonlite::fromJSON() %>%
+     the_puts <- the_content %>% jsonlite::fromJSON() %>%
          purrr::pluck("putExpDateMap") %>%
          purrr::map(pluck) %>%
          map_df(dplyr::bind_rows)
