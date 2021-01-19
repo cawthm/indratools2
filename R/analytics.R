@@ -243,6 +243,7 @@ td_get_quotes <- function(symbols = c("AAPL", "TSLA"),
           map_dfr(.x = .$body, .f = as_tibble) %>%
           select(ticker = symbol,
                 open = openPrice, high = highPrice, low = lowPrice, close = closePrice,
+                LAST = lastPrice,
                 volume = totalVolume, quoteTimeInLong)
 
 
