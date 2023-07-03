@@ -33,6 +33,3 @@ The reply to the POST command includes an order # in the header
 \description{
 Primary trading function USE WITH CAUTION
 }
-\examples{
-td_order(symbol = "TSLA", "LIMIT", 10, price = 300, "SELL")
-}

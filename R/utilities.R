@@ -41,11 +41,10 @@ url_encode <- function(string) {
 #' @export
 #'
 #' @examples
-#' option_name_parser(data.frame(key = "TSLA_110119C315"), "key")
 option_name_parser <- function(df, key) {
     # break up the key field in stages; ROS = 'Rest Of String'
-    df2 <- tidyr::separate(df, key, into = c("stock", "ROS"), sep = "_", remove = F) %>%
-        mutate(stock = stringr::str_remove(stock, '[0-9]'))
+    df2 <- tidyr::separate(df, key, into = c("stock", "ROS"), sep = "_", remove = F) |>
+        dplyr::mutate(stock = stringr::str_remove(stock, '[0-9]'))
 
     df3 <- tidyr::separate(df2, ROS, into = c("expiry_date", "type", "strike"), sep = c(6, 7), convert = T)
 
@@ -64,14 +63,10 @@ option_name_parser <- function(df, key) {
 #'
 #' @return A tibble
 #' @export
-#'
-#' @examples
-#' parser_response(jsonlite::fromJSON('{\"response\":[{\"service\":\"ADMIN\",\"requestid\":\"0\",\"command\":\"LOGIN\",\"timestamp\":1541541928754,\"content\":{\"code\":0,\"msg\":\"07-2\"}}]}'))
-#' this is found at login after sending user principals
 parser_response <- function(raw_parse){
-    service <- raw_parse %>% map("service") %>% pluck(1)
-    timestamp <- raw_parse %>% map("timestamp") %>% pluck(1) %>% as.character()
-    content <- raw_parse %>% map("content") %>% pluck(1)
+    service <- raw_parse |> map("service") |> pluck(1)
+    timestamp <- raw_parse |> map("timestamp") |> pluck(1) |> as.character()
+    content <- raw_parse |> map("content") |> pluck(1)
 
     data.frame(service, timestamp, content, stringsAsFactors = F)
 }
@@ -84,8 +79,8 @@ parser_response <- function(raw_parse){
 #' @rdname parser_response
 parser_notify <- function(raw_parse){
     service <- "heartbeat"
-    timestamp <- raw_parse %>% map("heartbeat") %>% pluck(1) %>% as.character()
-    tibble(service, timestamp, .rows = 1)
+    timestamp <- raw_parse |> map("heartbeat") |> pluck(1) |> as.character()
+    tibble::tibble(service, timestamp, .rows = 1)
 }
 
 #' @rdname parser_response
@@ -96,17 +91,17 @@ parser_data <- function(raw_parse) {
         lookup <- switch(service, "OPTION" = option_field_defn, "QUOTE" = stock_field_defn)
         ## this post https://stackoverflow.com/questions/45535157/difference-between-dplyrrename-and-dplyrrename-all
         # was helpful for how to use rename_all()
-        content_df %>% set_names( lookup[names(content_df)] )
+        content_df |> set_names( lookup[names(content_df)] )
     }
 
-    service <- raw_parse %>% map("service") %>% pluck(1)
-    timestamp <- raw_parse %>% map("timestamp") %>% pluck(1) %>% as.character()
-    body <- raw_parse %>% map("content") %>% pluck(1)
+    service <- raw_parse |> map("service") |> pluck(1)
+    timestamp <- raw_parse |> map("timestamp") |> pluck(1) |> as.character()
+    body <- raw_parse |> map("content") |> pluck(1)
 
 
     body <- map2(service, body, .f = helper_fn)
 
-    tibble(service, timestamp, body) %>% unnest(col = c(body))
+    tibble::tibble(service, timestamp, body) |> unnest(col = c(body))
 
 }
 
@@ -120,10 +115,6 @@ parser_data <- function(raw_parse) {
 #'
 #' @return A tibble
 #' @export
-#'
-#' @examples
-#' some_json <- '{\"notify\":[{\"heartbeat\":\"1541541939136\"}]}'
-#' master_parser(some_json)
 master_parser <- function(my_json) {
     raw_parse <- jsonlite::fromJSON(my_json)
     type <- names(raw_parse)
@@ -149,11 +140,6 @@ master_parser <- function(my_json) {
 #'
 #' @return Output will be a string of json that is expected by the streamer
 #' @export
-#'
-#' @examples
-#' requestor(c("TSLA", "MSFT"))
-#
-#' requestor("TSLA_122118P400", service = "OPTION")
 requestor <- function(parameter_keys,
                       requestid = "2",
                       service = "QUOTE",
@@ -163,7 +149,7 @@ requestor <- function(parameter_keys,
                       user_prins) {
 
     request_object <- list(requests =
-                               tibble(service = service,
+                               tibble::tibble(service = service,
                                       requestid = requestid,
                                       command = command,
                                       account = user_prins[["accounts"]][[1]][["accountId"]],
@@ -171,7 +157,7 @@ requestor <- function(parameter_keys,
     )
 
 
-    request_object$requests$parameters <- tibble(keys = paste(parameter_keys, collapse = ","),
+    request_object$requests$parameters <- tibble::tibble(keys = paste(parameter_keys, collapse = ","),
                                                  fields = paste(parameter_fields, collapse = ","))
 
     jsonlite::toJSON(request_object, pretty = pretty)
@@ -184,9 +170,6 @@ requestor <- function(parameter_keys,
 #'
 #' @return a Date object
 #' @export
-#'
-#' @examples ms <- 1559235837234
-#' ms_to_datetime(ms)
 ms_to_datetime <- function(milliseconds_since_epoch, tz = "America/Chicago") {
     tt <-  as.numeric(milliseconds_since_epoch)/ 1000
 
@@ -205,7 +188,7 @@ ms_to_datetime <- function(milliseconds_since_epoch, tz = "America/Chicago") {
 #' @examples
 datetime_to_ms <- function(dttm) {
   options(digits = 13)
-  t <- dttm %>% as.POSIXct() %>% as.numeric()
+  t <- dttm |> as.POSIXct() |> as.numeric()
   t * 1000
 }
 

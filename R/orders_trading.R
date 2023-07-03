@@ -11,9 +11,6 @@
 #'
 #' @return The reply to the POST command includes an order # in the header
 #' @export
-#'
-#' @examples
-#' td_order(symbol = "TSLA", "LIMIT", 10, price = 300, "SELL")
 td_order <- function(symbol,
                      orderType = "LIMIT",
                      quantity = 0,
@@ -27,20 +24,20 @@ td_order <- function(symbol,
     url <- paste0("https://api.tdameritrade.com/v1/accounts/",account_no, "/orders") ## need to generalize this
 
     json_to_send <- jsonlite::toJSON(
-        tibble(session = "NORMAL",
+        tibble::tibble(session = "NORMAL",
                duration = "DAY",
                orderType = orderType,
                complexOrderStrategyType = "NONE",
                quantity = quantity,
                price = price,
                requestedDestination = "AUTO",
-               orderLegCollection = list(tibble(orderLegType = "EQUITY",
-                                                instrument = tibble(assetType = "EQUITY",
+               orderLegCollection = list(tibble::tibble(orderLegType = "EQUITY",
+                                                instrument = tibble::tibble(assetType = "EQUITY",
                                                                     symbol = symbol),
                                                 instruction = instruction,
                                                 quantity = quantity)),
                orderStrategyType = "SINGLE")
-    ) %>% str_sub(2,-2) %>% jsonlite::minify()
+    ) |> str_sub(2,-2) |> jsonlite::minify()
 
     #json_to_send
     r <- httr::POST(url = url, body = json_to_send, httr::add_headers( .headers =
@@ -55,9 +52,6 @@ td_order <- function(symbol,
 #'
 #' @return A tibble
 #' @export
-#'
-#' @examples
-#' td_get_orders(refresh_tokens$access_tokens)
 td_get_orders <- function(access_token) {
     url <- 'https://api.tdameritrade.com/v1/accounts/489837238?fields=orders'
     r <- httr::RETRY(verb = "GET", url = url, httr::add_headers(
@@ -70,9 +64,6 @@ td_get_orders <- function(access_token) {
 #'
 #' @return Will return a tibble
 #' @export
-#'
-#' @examples
-#' td_order_status(access_token)
 td_order_status <- function(access_token) {}
 
 #' This will eventually delete an order
@@ -82,9 +73,6 @@ td_order_status <- function(access_token) {}
 #'
 #' @return Will return a tibble with a confirm #(?) and a timestamp
 #' @export
-#'
-#' @examples
-#' td_delete_order(order_number = "123456", access_token = .token_set$access_token)
 td_delete_order <- function(order_number, access_token) {
     httr::RETRY(verb = "DELETE", order_url, httr::add_headers(Authorization  =
                                                   paste0("Bearer ", access_token))
@@ -98,9 +86,6 @@ td_delete_order <- function(order_number, access_token) {
 #'
 #' @return a tibble()
 #' @export
-#'
-#' @examples
-#' td_get_account(access_token = .refresh_token$access_token)
 td_get_account_balances <- function(account_no = "489837238", access_token) {
 
     url <- paste0("https://api.tdameritrade.com/v1/accounts/",
@@ -115,7 +100,7 @@ td_get_account_balances <- function(account_no = "489837238", access_token) {
 
     some_json <- httr::content(r, as = "text", encoding = "UTF-8")
 
-    jsonlite::fromJSON(some_json)$securitiesAccount$currentBalances %>%
-        as_tibble() %>%
-        mutate(timestamp = indratools2::datetime_to_ms(Sys.time()))
+    jsonlite::fromJSON(some_json)$securitiesAccount$currentBalances |>
+        tibble::as_tibble() |>
+        dplyr::mutate(timestamp = indratools2::datetime_to_ms(Sys.time()))
 }

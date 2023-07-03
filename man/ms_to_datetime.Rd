@@ -15,7 +15,3 @@ a Date object
 \description{
 Convert milliseconds since unix epoch to a datetime object
 }
-\examples{
-ms <- 1559235837234
-ms_to_datetime(ms)
-}

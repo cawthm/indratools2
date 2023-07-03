@@ -17,6 +17,3 @@ a tibble()
 \description{
 Takes a snapshot of account balance
 }
-\examples{
-td_get_account(access_token = .refresh_token$access_token)
-}

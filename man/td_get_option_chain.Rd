@@ -66,6 +66,3 @@ A chr vector of option symbol names.
 \description{
 Get a term structure of extant option contract symbols
 }
-\examples{
-td_get_option_chain("TSLA")
-}

@@ -37,7 +37,3 @@ Output will be a string of json that is expected by the streamer
 \description{
 Send requests to TD streamer
 }
-\examples{
-requestor(c("TSLA", "MSFT"))
-requestor("TSLA_122118P400", service = "OPTION")
-}

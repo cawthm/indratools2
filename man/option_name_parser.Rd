@@ -18,6 +18,3 @@ Modifies in a place a tibble
 The TD API uses a certain format for its options symbology (), and this function
 decomposes the symbol into a tibble with seven fields
 }
-\examples{
-option_name_parser(data.frame(key = "TSLA_110119C315"), "key")
-}

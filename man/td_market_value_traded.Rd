@@ -15,6 +15,3 @@ A tibble of the last n days' trading volume, HLC, and mkt cap
 \description{
 Return a df of volume, mkt cap and mkt value traded
 }
-\examples{
-td_market_value_traded("MSFT", 2)
-}

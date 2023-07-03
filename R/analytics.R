@@ -5,10 +5,6 @@
 #'
 #' @return A tibble of the last n days' trading volume, HLC, and mkt cap
 #' @export
-#'
-#' @examples
-#' td_market_value_traded("MSFT", 2)
-#' @importFrom magrittr "%>%"
 td_market_value_traded <- function(symbol, n_years = 2) {
 
     url1 <- paste0("https://api.tdameritrade.com/v1/marketdata/", symbol,"/pricehistory") # for price history
@@ -25,21 +21,21 @@ td_market_value_traded <- function(symbol, n_years = 2) {
     #r_url1
     returned_json <- httr::content(r_url1, as = "text")
 
-    tidy_df <- jsonlite::fromJSON(returned_json)[[1]] %>%
+    tidy_df <- jsonlite::fromJSON(returned_json)[[1]] |>
         dplyr::mutate(ticker = symbol, pretty_date = ms_to_datetime(datetime))
 
     url2_w_params <- paste0(url2,"?apikey=",httpuv::encodeURIComponent("moonriver@AMER.OAUTHAP"),
                                   "&symbol=", symbol,
                                   "&projection=", "fundamental")
 
-    r_url2 <- httr::RETRY("GET", url = url2_w_params, times = 20) %>% httr::content() %>% purrr::flatten()
+    r_url2 <- httr::RETRY("GET", url = url2_w_params, times = 20) |> httr::content() |> purrr::flatten()
 
     ### TD doesn't offer historical mkt cap as a datum
     ### therefore we must estimate using hist px + shares out
 
     adj_shares_out <- r_url2$fundamental$marketCap / dplyr::last(tidy_df$close)
 
-    tidy_df <- tidy_df %>% dplyr::mutate(shares_out_mm = adj_shares_out,
+    tidy_df <- tidy_df |> dplyr::mutate(shares_out_mm = adj_shares_out,
                                   market_cap_bn = shares_out_mm * close/ 1000,
                                   value_traded_bn = volume * close /1e9,
                                   val_div_mkt_cap = value_traded_bn/ market_cap_bn)
@@ -73,9 +69,6 @@ td_market_value_traded <- function(symbol, n_years = 2) {
 #'
 #' @return A chr vector of option symbol names.
 #' @export
-#'
-#' @examples
-#' td_get_option_chain("TSLA")
 td_get_option_chain <- function(  symbol = "TSLA",
                                   apikey ="moonriver@AMER.OAUTHAP",
                                   contractType = "ALL",
@@ -120,14 +113,14 @@ td_get_option_chain <- function(  symbol = "TSLA",
 
     the_content <- httr::content(r, as = "text")
 
-     the_calls <- the_content %>% jsonlite::fromJSON() %>%
-         purrr::pluck("callExpDateMap") %>%
-         purrr::map(pluck) %>%
+     the_calls <- the_content |> jsonlite::fromJSON() |>
+         purrr::pluck("callExpDateMap") |>
+         purrr::map(pluck) |>
          map_df(dplyr::bind_rows)
     #
-     the_puts <- the_content %>% jsonlite::fromJSON() %>%
-         purrr::pluck("putExpDateMap") %>%
-         purrr::map(pluck) %>%
+     the_puts <- the_content |> jsonlite::fromJSON() |>
+         purrr::pluck("putExpDateMap") |>
+         purrr::map(pluck) |>
          map_df(dplyr::bind_rows)
     #
      tibble::as_tibble(dplyr::bind_rows(the_calls, the_puts))
@@ -161,8 +154,6 @@ td_get_option_chain <- function(  symbol = "TSLA",
 #'
 #' @return A tibble of dates and HLCO prices
 #' @export
-#'
-#' @examples td_get_price_history("$SPX.X")
 td_get_price_history <- function(symbol = "TSLA",
                                                        apikey = "moonriver@AMER.OAUTHAP",
                                                        periodType = "day",
@@ -205,7 +196,7 @@ td_get_price_history <- function(symbol = "TSLA",
     the_list <- httr::content(r)
 
     ## need to parse this into a df/ tibble
-    the_list %>% purrr::pluck("candles") %>% purrr::map_df(as_tibble)
+    the_list |> purrr::pluck("candles") |> purrr::map_df(as_tibble)
 
 }
 
@@ -219,8 +210,6 @@ td_get_price_history <- function(symbol = "TSLA",
 #'
 #' @return A tibble of prices
 #' @export
-#'
-#' @examples
 td_get_quotes <- function(symbols = c("AAPL", "TSLA"),
                          apikey = "moonriver@AMER.OAUTHAP",
                          access_token) {
@@ -237,10 +226,10 @@ td_get_quotes <- function(symbols = c("AAPL", "TSLA"),
            .headers = c("Authorization" = paste0("Bearer ", access_token),
                     "Content-Type" = "application/json")))
 
-     httr::content(r, as = "text") %>%
-          jsonlite::fromJSON() %>%
-          tibble(stock = names(.), body = .) %>%
-          map_dfr(.x = .$body, .f = as_tibble) %>%
+     httr::content(r, as = "text") |>
+          jsonlite::fromJSON() |>
+         tibble::tibble(stock = names(.), body = .) |>
+          map_dfr(.x = .$body, .f = tibble::as_tibble) |>
           select(ticker = symbol,
                 open = openPrice, high = highPrice, low = lowPrice, close = closePrice,
                 LAST = lastPrice,

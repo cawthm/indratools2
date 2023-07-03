@@ -15,6 +15,3 @@ Will return a tibble with a confirm #(?) and a timestamp
 \description{
 This will eventually delete an order
 }
-\examples{
-td_delete_order(order_number = "123456", access_token = .token_set$access_token)
-}

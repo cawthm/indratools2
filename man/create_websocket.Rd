@@ -20,6 +20,3 @@ for more info.
 \description{
 Wrapper around \code{websocket::WebSocket$new}
 }
-\examples{
-ws <- create_websocket("the_socket_url")
-}

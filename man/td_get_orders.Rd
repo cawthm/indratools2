@@ -12,6 +12,3 @@ A tibble
 \description{
 Retrieve outstanding orders
 }
-\examples{
-td_get_orders(refresh_tokens$access_tokens)
-}

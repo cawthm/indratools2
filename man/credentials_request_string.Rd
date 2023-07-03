@@ -17,6 +17,3 @@ json
 \description{
 Create json string for inital websocket handshake
 }
-\examples{
-ws$send(credentials_request_string(user_prins))
-}

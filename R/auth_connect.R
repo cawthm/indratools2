@@ -1,3 +1,64 @@
+#' Obtain a new refresh token (which don't expire) OR a new access token (lasts 20 mins).
+#'
+#' Following Tradestation's \[api documention for auth\](https://api.tradestation.com/docs/fundamentals/authentication/auth-code/#1-redirect-user-for-authenticationauthorization),
+#' we will usually use this function with a persistent \code{"refresh_token"}.
+#'
+#'
+#' @param grant_type The grant type.
+#' Possible values are \code{"refresh_token"} (the usual case) or \code{"authorization_code"}, used
+#' if a new refresh_token is needed.
+#' @param client_id The TS api key for the account
+#' @param client_secret The TS secret associated with with account
+#' @param code A special one-use code obtained from manual browser auth flow (see example below)
+#' @param redirect_uri Typically localhost
+#' @param refresh_token The refresh token
+#' @param path_to_file Where the token(s) should be saved
+#'
+#' @return Has a side effect of saving a new .rds file(s), named "ts_token.rds" and,
+#' if \code{"client_id"} is set to "\code{"authorization_code"}"
+#' @export
+ts_token_handler <- function(grant_type = "authorization_code",
+                             client_id,
+                             client_secret,
+                             code = code,
+                             redirect_uri = "http://localhost:3001/",
+                             refresh_token = NULL,
+                             path_to_file = "") {
+
+    url <- "https://signin.tradestation.com/oauth/token"
+
+    # Set the headers
+    headers <- c('Content-Type' = 'application/x-www-form-urlencoded')
+
+    # Set the body
+    params <- list(
+        grant_type = grant_type,
+        client_id = client_id,
+        client_secret = client_secret
+    )
+
+    if (!is.null(code)) {
+        params$code <- code
+        params$redirect_uri <- redirect_uri
+    } else if (!is.null(refresh_token)) {
+        params$refresh_token <- refresh_token
+    }
+
+    # Make the POST request
+    response <- httr::POST(url, httr::add_headers(headers), body = params, encode = "form")
+    response2 <- httr::content(response)
+    #
+
+    readr::write_rds(response2, paste0(path_to_file, "ts_tokens.rds"))
+
+    if (grant_type == "authorization_code" && httr::status_code(response) < 300) {
+        readr::write_rds(response2$refresh_token, paste0(path_to_file,"refresh_token.rds"))
+    }
+    response2
+}
+
+
+
 #' Obtain access or refresh tokens from the TD API
 #'
 #' @param grant_type The grant type of the oAuth scheme.
@@ -65,9 +126,7 @@ td_get_user_principals <- function(access_token,
 #' @return An R6 websocket object, against which methods are called.  See \href{https://github.com/rstudio/websocket}{the rstudio/websocket github repo}
 #' for more info.
 #' @export
-#'
-#' @examples
-#' ws <- create_websocket("the_socket_url")
+
 create_websocket <- function(socket_url, autoConnect = FALSE) {
     websocket::WebSocket$new(paste0("wss://", socket_url, "/ws"), autoConnect = autoConnect)
 }
@@ -106,19 +165,16 @@ update_refresh_tokens <- function(path_to_file = "") {
 #'
 #' @return json
 #' @export
-#'
-#' @examples
-#' ws$send(credentials_request_string(user_prins))
 credentials_request_string <- function(user_prins, pretty = FALSE) {
     tokenTimeStampSeconds <-
-        user_prins[["streamerInfo"]][["tokenTimestamp"]] %>%
-        lubridate::as_datetime(.) %>% as.numeric()
+        user_prins[["streamerInfo"]][["tokenTimestamp"]] |>
+        lubridate::as_datetime(.) |> as.numeric()
 
     tokenTimeStampAsMs <-
-        (tokenTimeStampSeconds * 1000) %>% toString()
+        (tokenTimeStampSeconds * 1000) |> toString()
 
     credentials <-
-        tibble(
+        tibble::tibble(
             userid = user_prins[["accounts"]][[1]][["accountId"]],
             token = user_prins[["streamerInfo"]][["token"]],
             company = user_prins[["accounts"]][[1]][["company"]],
@@ -139,16 +195,16 @@ credentials_request_string <- function(user_prins, pretty = FALSE) {
         paste(names(credentials),
               credentials,
               sep = "=",
-              collapse = "&") %>%
+              collapse = "&") |>
         httpuv::encodeURIComponent()
 
-    request_build <- list(requests = tibble(service =  "ADMIN",
+    request_build <- list(requests = tibble::tibble(service =  "ADMIN",
                                             command =  "LOGIN",
                                             requestid = 0,
                                             account = user_prins[["accounts"]][[1]][["accountId"]],
                                             source = user_prins[["streamerInfo"]][["appId"]]))
 
-    request_build$requests$parameters <- tibble(
+    request_build$requests$parameters <- tibble::tibble(
         credential = credentials_to_string,
         token = user_prins[["streamerInfo"]][["token"]],
         version = "1.0",
@@ -164,7 +220,6 @@ credentials_request_string <- function(user_prins, pretty = FALSE) {
 #'
 #' @return No return value, but ensures that the ws$readyState() == T before proceeding with script
 #' @export
-#'
 poll_until_connected <- function(ws, timeout = 5) {
     connected <- FALSE
     end <- Sys.time() + timeout

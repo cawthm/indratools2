@@ -51,6 +51,3 @@ A tibble of dates and HLCO prices
 \description{
 Get HLCO price history for a symbol
 }
-\examples{
-td_get_price_history("$SPX.X")
-}

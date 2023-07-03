@@ -17,7 +17,3 @@ The TD streamer sends json which \code{master_parser()} 1), converts to a nested
 list/df object per jsonlite::fromJSON() and then 2) using one of the associated helper functions
 \code{parser_*} to flatten into a nicely rectangular tibble
 }
-\examples{
-some_json <- '{\"notify\":[{\"heartbeat\":\"1541541939136\"}]}'
-master_parser(some_json)
-}

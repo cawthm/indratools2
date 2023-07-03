@@ -12,6 +12,3 @@ Will return a tibble
 \description{
 This will eventually get order status
 }
-\examples{
-td_order_status(access_token)
-}
